@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract PaymentSplitter is Ownable {
     event PayeeAdded(address account, uint256 shares);
     event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
-    event PaymentReceived(address from, uint256 amount);
+    event PaymentReceived(address from, address paymentSplitter,uint256 amount, address token);
 
     string public name;
     string public category;
@@ -52,7 +52,7 @@ contract PaymentSplitter is Ownable {
             emit ERC20PaymentReleased(token, account, payment);
         }
         totalReleased += amount;
-        emit PaymentReceived(msg.sender, amount);
+        emit PaymentReceived(msg.sender, address(this), amount, address(token));
     }
     
     /**
