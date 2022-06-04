@@ -41,7 +41,7 @@ contract PaymentSplitter is Ownable {
         }
     }
 
-    function donate(uint256 amount) public onlyOwner{
+    function donate(uint256 amount) public {
         uint256 payment;
         address account;
         IERC20 token = IERC20(tokenAddress);
