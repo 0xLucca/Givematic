@@ -5,7 +5,7 @@ import "./PaymentSplitter.sol";
 
 contract Givematic {
     
-    event PaymentSplitterCreated(string name, string category, address[] payees, uint256[] shares, address tokenAddress);
+    event PaymentSplitterCreated(address indexed newContract, string name, string category, address[] payees, uint256[] shares, address tokenAddress);
 
     PaymentSplitter[] public paymentSplitters;
 
@@ -21,7 +21,7 @@ contract Givematic {
             tokenAddress
         );
         paymentSplitters.push(paymentSplitter);
-        emit  PaymentSplitterCreated(name, category, payees, shares, tokenAddress);
+        emit  PaymentSplitterCreated(address(paymentSplitter), name, category, payees, shares, tokenAddress);
     }
 
     function getPaymentSplitters() external view returns(PaymentSplitter[] memory _paymentSplitters){
