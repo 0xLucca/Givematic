@@ -8,11 +8,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PaymentSplitter is Ownable {
     event PayeeAdded(address account, uint256 shares);
-    event PaymentReleased(address to, uint256 amount);
     event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
     event PaymentReceived(address from, uint256 amount);
 
-    //address public tokenAddress = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
+    string public name;
+    string public category;
+
     address public tokenAddress;
     uint256 public totalShares;
     uint256 public totalReleased;
@@ -27,16 +28,20 @@ contract PaymentSplitter is Ownable {
      * All addresses in `payees` must be non-zero. Both arrays must have the same non-zero length, and there must be no
      * duplicates in `payees`.
      */
-    constructor(address[] memory _payees, uint256[] memory shares_, address tokenAddress_){
+    constructor(string memory _name, string memory _category, address[] memory _payees, uint256[] memory shares_, address tokenAddress_){
         require(_payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
         require(_payees.length > 0, "PaymentSplitter: no payees");
+
+        name = _name;
+        category = _category;
         tokenAddress = tokenAddress_;
+
         for (uint256 i = 0; i < _payees.length; i++) {
             addPayee(_payees[i], shares_[i]);
         }
     }
 
-    function donate(uint256 amount) public{
+    function donate(uint256 amount) public onlyOwner{
         uint256 payment;
         address account;
         IERC20 token = IERC20(tokenAddress);
@@ -47,6 +52,7 @@ contract PaymentSplitter is Ownable {
             emit ERC20PaymentReleased(token, account, payment);
         }
         totalReleased += amount;
+        emit PaymentReceived(msg.sender, amount);
     }
     
     /**

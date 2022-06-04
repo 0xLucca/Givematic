@@ -22,7 +22,7 @@ describe("PaymentSplitter", function () {
     this.beforeEach(async function () {
         const PaymentSplitter = await ethers.getContractFactory("PaymentSplitter");
 
-        paymentSplitter = await PaymentSplitter.deploy(payeesAddresses, payeesShares, testToken.address);
+        paymentSplitter = await PaymentSplitter.deploy("TestSplitter", "TestCategory", payeesAddresses, payeesShares, testToken.address);
         
         await paymentSplitter.deployed();
 
