@@ -11,13 +11,17 @@ import {
   createClient,
   WagmiConfig,
 } from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
 const { chains, provider } = configureChains(
-  [chain.polygon, chain.polygonMumbai],
+  [chain.polygonMumbai],
   [
-    alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }),
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: `https://matic-mumbai--jsonrpc.datahub.figment.io/apikey/8e26d8eb38f954891008b1019c9a6c67`
+      }),
+    }),
     publicProvider()
   ]
 );
