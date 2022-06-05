@@ -55,7 +55,7 @@ function CharityPool({ name, totalDonations, expenses, description }) {
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-lg font-bold">{name}</h3>
-          <h4>Total Donations: {totalDonations} MATIC</h4>
+          {/* <h4>Total Donations: {totalDonations} MATIC</h4> */}
           <div className="flex">
             <div className="mr-6">% to cause: <span className="text-green-700">{calcCausePercent(expenses)}%</span></div>
             <div>% to overhead: <span className="text-red-700">{calcOverheadPercent(expenses)}%</span></div>
@@ -83,7 +83,6 @@ function CharityPool({ name, totalDonations, expenses, description }) {
         <table className="table-auto w-full mx-auto my-4">
         <thead>
           <tr className="flex justify-between">
-            <th>Category</th>
             <th>Address</th>
             <th>Share</th>
           </tr>
@@ -93,7 +92,6 @@ function CharityPool({ name, totalDonations, expenses, description }) {
             expenses.map((e, i) => {
               return (
                 <tr key={e.guid} className="flex justify-between">
-                  <td><div>{e.category}</div></td>
                   <td><div>{e.address}</div></td>
                   <td>
                     <div>
