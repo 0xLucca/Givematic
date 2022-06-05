@@ -9,10 +9,51 @@ import { givematicABI } from '../abis/givematic.js'
 import { paymentSplitter } from '../abis/paymentSplitter'
 import Link from 'next/link'
 import {graphql} from 'graphql'
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  useQuery,
+  gql
+} from "@apollo/client";
+
+const splitterQuery = `
+{
+  paymentSplitters(first: 5) {
+    id
+    address
+    name
+    category
+    shares
+    payees {
+      id
+      address
+    }
+  }
+  donations(first: 5) {
+    id
+    donator
+    paymentSplitter {
+      id
+    }
+    amount
+  }
+}
+`
+
+const query = `
+{
+  donations(where: {paymentSplitter: $splitterAddress}){
+    id
+    donator
+    amount
+  }
+}
+`
 
 export default function Home() {
   const provider = useProvider()
-  const [pools, setPools] = useState([])
+  const [contracts, setContracts] = useState([])
   const { data, isError, isLoading } = useContractRead(
     {
       addressOrName: '0xf50b1A751fdEbfB89Cd79e3969f30CF3C3F4c4Be',
@@ -21,37 +62,72 @@ export default function Home() {
     'getPaymentSplitters',
   )
 
-  useEffect(() => {
-    async function test() {
-      console.log(data)
-      if (data) {
-        data.forEach(d => {
-          console.log(d)
-          let c = new ethers.Contract(d, paymentSplitter, provider)
-          c.name().then(name => {
-            console.log(name)
-            c.category().then(category => {
-              console.log(category)
-              let pools = Object.assign([], pools)
-              pools.push({name: name, category: category})
-              setPools(pools)
-            })
-          })
+  // useEffect(() => {
+  //   async function test() {
+  //     // console.log(data)
+  //     // if (data) {
+  //     //   data.forEach(d => {
+  //     //     console.log(d)
+  //     //     let c = new ethers.Contract(d, paymentSplitter, provider)
+  //     //     c.name().then(name => {
+  //     //       console.log(name)
+  //     //       c.category().then(category => {
+  //     //         console.log(category)
+  //     //         let pools = Object.assign([], pools)
+  //     //         pools.push({name: name, category: category})
+  //     //         setPools(pools)
+  //     //       })
+  //     //     })
           
-        })
-      }
-      // console.log(data)
-      // if(data) {
-      //   data.forEach(d => {
-      //     let c = new ethers.Contract(d, paymentSplitter, provider)
-      //     console.log('CONTRACT', c)
-      //   })
-      // }
-      // // Notice we pass in "Hello World" as the parameter to the constructor
-      // let contract = await factory.deploy("Hello World");
-    }
-    test()
-  }, [data])
+  //     //   })
+  //     // }
+  //     // console.log(data)
+  //     // if(data) {
+  //     //   data.forEach(d => {
+  //     //     let c = new ethers.Contract(d, paymentSplitter, provider)
+  //     //     console.log('CONTRACT', c)
+  //     //   })
+  //     // }
+  //     // // Notice we pass in "Hello World" as the parameter to the constructor
+  //     // let contract = await factory.deploy("Hello World");
+  //   }
+  //   test()
+  // }, [data])
+
+  useEffect(() => {
+    const client = new ApolloClient({
+      uri: "https://api.thegraph.com/subgraphs/id/QmXVGRAQZU2SBqqcPp1iuyGy5Y9EUEM913GAFRvuQLwmJn",
+      cache: new InMemoryCache(),
+    })
+
+    client
+  .query({
+    query: gql(splitterQuery),
+  })
+  .then(({data}) => {
+    console.log("SubGraph Data: ", data)
+    setContracts(data.paymentSplitters)
+    data.paymentSplitters.forEach(ps => {
+      client.query({
+        query: gql(query),
+      })
+    })
+  })
+  .catch((err) => {
+    console.log('Error fetching data: ', err)
+  })
+   
+  }, [])
+
+  const setExpenses = (c) => {
+    console.log(c)
+    let expenses = []
+    c.payees.forEach((p, i) => {
+      expenses.push({address: p.address, share: parseInt(c.shares[i])})
+    })
+    console.log('expense', expenses)
+    return expenses
+  }
 
   return (
     <>
@@ -107,14 +183,12 @@ export default function Home() {
       </div>
       <h1 className="text-3xl font-bold my-4">Charity Pools</h1>
       {
-        pools.map(p => {
+        contracts.map(c => {
           return (
-            <CharityPool name={p.name} totalDonations="3000" expenses={[{category: 'Category #1', address: '0x1', share: 100, overhead: true}, {category: 'Category #2', address: '0x2', share: 90, overhead: false}]} description="Help fight hunger"/>
+            <CharityPool key={c.address} name={c.name} expenses={setExpenses(c)}/>
           )
         })
       }
-      <CharityPool name="Hunger Fighter Pool" totalDonations="4000" expenses={[{category: 'Category #1', address: '0x1', share: 100, overhead: true}, {category: 'Category #2', address: '0x2', share: 90, overhead: false}]} description="Help fight hunger"/>
-      <CharityPool name="Clean Earth Pool" totalDonations="2000" expenses={[{category: 'Category #2', address: '0x2', share: 20, overhead: false}]} description="Help clean up the earth"/>
     </>
   )
 }

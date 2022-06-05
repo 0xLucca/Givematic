@@ -22,6 +22,11 @@ const splitterQuery = `
     address
     name
     category
+    shares
+    payees {
+      id
+      address
+    }
   }
   donations(first: 5) {
     id
@@ -48,35 +53,18 @@ function Category() {
   //   'getPaymentSplitters',
   // )
 
-  useEffect(() => {
-    // async function test() {
-    //   console.log('data', data)
-    //   if (data) {
-    //     data.forEach(d => {
-    //       console.log(d)
-    //       let c = new ethers.Contract(d, paymentSplitter, provider)
-    //       try {
-    //         c.category().then(cat => {
-    //           console.log('category', cat)
-    //           if(cat?.toLowerCase() == slug?.toLowerCase()) {
-    //             let cs = Object.assign([], contracts)
-    //             c.name().then(n => {
-    //               let _contracts = Object.assign([], contracts)
-    //               _contracts.push({name: n, address: c.address})
-    //               setContracts(_contracts)
-    //             })
-    //           }
-    //         })
-    //       } catch(err) {
-    //         console.log(err)
-    //       }
-    //     })
-    //   }
-    // }
-    // test()
+  const setExpenses = (c) => {
+    let expenses = []
+    c.payees.forEach((p, i) => {
+      expenses.push({address: p.address, share: parseInt(c.shares[i])})
+    })
+    console.log('expense', expenses)
+    return expenses
+  }
 
+  useEffect(() => {
     const client = new ApolloClient({
-      uri: "https://thegraph.com/hosted-service/subgraph/0xlucca/givematic",
+      uri: "https://api.thegraph.com/subgraphs/id/QmXVGRAQZU2SBqqcPp1iuyGy5Y9EUEM913GAFRvuQLwmJn",
       cache: new InMemoryCache(),
     })
 
@@ -84,7 +72,10 @@ function Category() {
   .query({
     query: gql(splitterQuery),
   })
-  .then((data) => console.log('Subgraph data: ', data))
+  .then(({data}) => {
+    console.log("SubGraph Data: ", data)
+    setContracts(data.paymentSplitters.filter(ps => ps.category.toLowerCase() === slug?.toLowerCase()))
+  })
   .catch((err) => {
     console.log('Error fetching data: ', err)
   })
@@ -93,11 +84,11 @@ function Category() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold my-4">{slug} Charity Pools</h1>
+      <h1 className="text-3xl font-bold my-4">{slug[0].toUpperCase() + slug.substring(1)} Charity Pools</h1>
       {
         contracts.map(c => {
           return (
-            <CharityPool key={c.name} name={c.name} totalDonations="4000" expenses={[{category: 'Category #1', address: '0x1', share: 100, overhead: true}, {category: 'Category #2', address: '0x2', share: 90, overhead: false}]} description="Help fight hunger" />
+            <CharityPool key={c.name} name={c.name} totalDonations="4000" expenses={setExpenses(c)} />
           )
         })
       }
