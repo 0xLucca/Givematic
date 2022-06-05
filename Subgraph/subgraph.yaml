@@ -1,0 +1,44 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Givematic
+    network: mumbai
+    source:
+      address: "0xC1d7C416d182ea11A93269C5a83e1A08eef7B540"
+      abi: Givematic
+      startBlock: 26603531
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/givematic.ts
+      entities:
+        - PaymentSplitter
+      abis:
+        - name: Givematic
+          file: ./abis/Givematic.json
+      eventHandlers:
+        - event: PaymentSplitterCreated(indexed address,string,string,address[],uint256[],address)
+          handler: handlePaymentSplitterCreated
+      
+templates:
+  - kind: ethereum/contract
+    name: PaymentSplitterTemplate
+    network: mumbai
+    source:
+      abi: PaymentSplitter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/paymentSplitter.ts
+      entities:
+        - Donation
+      abis:
+        - name: PaymentSplitter
+          file: ./abis/PaymentSplitter.json
+      eventHandlers:
+        - event: PaymentReceived(address,address,uint256,address)
+          handler: handlePaymentReceived

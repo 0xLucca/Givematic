@@ -1,0 +1,19 @@
+type PaymentSplitter @entity {
+    id: ID!
+    address: Bytes! #address
+    name: String! # string
+    category: String! # string
+    payees: [String]! # address[]
+    shares: [BigInt]! # uint256[]
+    tokenAddress: Bytes! # address
+}
+
+type Donation @entity {
+    id: ID!
+    donator: Bytes! #address
+    paymentSplitter: PaymentSplitter!
+    amount: BigInt!
+    token: Bytes!
+}
+
+
