@@ -3,8 +3,8 @@ type PaymentSplitter @entity {
     address: Bytes! #address
     name: String! # string
     category: String! # string
-    payees: [String]! # address[]
-    shares: [BigInt]! # uint256[]
+    payees: [Payee!]! @derivedFrom(field: "paymentSplitter")
+    shares: [BigInt!]! # uint256[]
     tokenAddress: Bytes! # address
 }
 
@@ -14,6 +14,12 @@ type Donation @entity {
     paymentSplitter: PaymentSplitter!
     amount: BigInt!
     token: Bytes!
+}
+
+type Payee @entity{
+    id: ID!
+    address: Bytes!
+    paymentSplitter: PaymentSplitter!
 }
 
 

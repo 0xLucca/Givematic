@@ -164,3 +164,53 @@ export class Donation extends Entity {
     this.set("token", Value.fromBytes(value));
   }
 }
+
+export class Payee extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Payee entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Payee must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Payee", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Payee | null {
+    return changetype<Payee | null>(store.get("Payee", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value!.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get paymentSplitter(): string {
+    let value = this.get("paymentSplitter");
+    return value!.toString();
+  }
+
+  set paymentSplitter(value: string) {
+    this.set("paymentSplitter", Value.fromString(value));
+  }
+}
