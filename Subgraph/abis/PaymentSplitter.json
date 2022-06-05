@@ -85,6 +85,12 @@
         },
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "paymentSplitter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "shares",
           "type": "uint256"

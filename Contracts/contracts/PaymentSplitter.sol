@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PaymentSplitter is Ownable {
-    event PayeeAdded(address account, uint256 shares);
+    event PayeeAdded(address account, address paymentSplitter, uint256 shares);
     event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
     event PaymentReceived(address from, address paymentSplitter,uint256 amount, address token);
 
@@ -107,6 +107,6 @@ contract PaymentSplitter is Ownable {
         payees.push(account);
         shares[account] = shares_;
         totalShares = totalShares + shares_;
-        emit PayeeAdded(account, shares_);
+        emit PayeeAdded(account, address(this), shares_);
     }
 }

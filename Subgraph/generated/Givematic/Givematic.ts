@@ -35,8 +35,8 @@ export class PaymentSplitterCreated__Params {
     return this._event.parameters[2].value.toString();
   }
 
-  get payees(): Array<string> {
-    return this._event.parameters[3].value.toStringArray();
+  get payees(): Array<Address> {
+    return this._event.parameters[3].value.toAddressArray();
   }
 
   get shares(): Array<BigInt> {
@@ -151,8 +151,8 @@ export class CreatePaymentSplitterCall__Inputs {
     return this._call.inputValues[1].value.toString();
   }
 
-  get payees(): Array<string> {
-    return this._call.inputValues[2].value.toStringArray();
+  get payees(): Array<Address> {
+    return this._call.inputValues[2].value.toAddressArray();
   }
 
   get shares(): Array<BigInt> {
